@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import CustomUser
 
 # Create your models here.
 
@@ -26,3 +27,15 @@ class Staff(models.Model):
 
   def __str__(self):
     return self.name
+
+class Comment(models.Model):
+    movie = models.ForeignKey(Movie, blank=True, null=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, blank=True, null=True, on_delete=models.CASCADE)
+    post = models.CharField(max_length=500)
+    pub_date = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-pub_date']
+
+    def __str__(self):
+        return self.post

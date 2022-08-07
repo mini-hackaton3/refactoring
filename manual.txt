@@ -9,11 +9,11 @@
 - Email (AbstractUser)
 
 2. comments
-- body
-+ author (CustomUser의 username)
+- post
+- pub_date
++ user (CustomUser의 username)
 + image (CustomUser의 image)
 + movie (Movie의 id)
-+ pub_date (자동 생성)
 
 3. movies - Movie
 - title_kor
