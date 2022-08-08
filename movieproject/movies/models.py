@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import CustomUser
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
@@ -33,9 +34,11 @@ class Comment(models.Model):
     user = models.ForeignKey(CustomUser, blank=True, null=True, on_delete=models.CASCADE)
     post = models.CharField(max_length=500)
     pub_date = models.DateTimeField(auto_now_add=True)
+    rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)], blank=True, null=True)
     
     class Meta:
         ordering = ['-pub_date']
 
     def __str__(self):
         return self.post
+    

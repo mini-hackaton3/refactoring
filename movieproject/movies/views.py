@@ -1,4 +1,5 @@
 import requests
+from django.shortcuts import redirect
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -121,15 +122,15 @@ def view_comments(request, id):
 디테일 페이지에서 댓글 달기 (로그인 사용자 한정)
 '''
 @api_view(["POST"])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def new_comment(request, id):
-  serializer = CommentSerializer(data=request.data)
-  if serializer.is_valid():
-    serializer.validated_data['movie'] = Movie.objects.get(id=id)
-    serializer.save(user = request.user)
-    return Response(serializer.data, status=status.HTTP_200_OK)
-  return Response(status=status.HTTP_400_BAD_REQUEST)
+  if request.user.is_authenticated:
+    serializer = CommentSerializer(data=request.data)
+    if serializer.is_valid():
+      serializer.validated_data['movie'] = Movie.objects.get(id=id)
+      serializer.save(user = request.user)
+      return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+  return redirect('accounts:login')
 
 '''
 디테일 페이지에서 댓글 수정 (로그인 사용자 한정, 댓글 주인 한정)
