@@ -132,30 +132,34 @@ def new_comment(request, id):
   return Response(status=status.HTTP_400_BAD_REQUEST)
 
 '''
-디테일 페이지에서 댓글 수정 (로그인 사용자 한정)
+디테일 페이지에서 댓글 수정 (로그인 사용자 한정, 댓글 주인 한정)
 '''
 @api_view(["GET", "POST"])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def re_comment(request, id):
   comment = Comment.objects.get(id=id)
-  serializer = CommentSerializer(comment, data=request.data)
-  if serializer.is_valid():
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_200_OK)
-  serializer = CommentSerializer(comment)
-  return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+  if comment.user == request.user:
+    serializer = CommentSerializer(comment, data=request.data)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_200_OK)
+    serializer = CommentSerializer(comment)
+    return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+  return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 '''
-디테일 페이지에서 댓글 삭제 (로그인 사용자 한정)
+디테일 페이지에서 댓글 삭제 (로그인 사용자 한정, 댓글 주인 한정)
 '''
 @api_view(["DELETE"])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def delete_comment(request, id):
-  comment = Comment.objects.get(id=id)
-  comment.delete()
-  return Response(status=status.HTTP_204_NO_CONTENT)
+    comment = Comment.objects.get(id=id)
+    if comment.user == request.user:
+      comment.delete()
+      return Response(status=status.HTTP_204_NO_CONTENT)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 '''
 내가 단 댓글 확인 (로그인 사용자 한정)
