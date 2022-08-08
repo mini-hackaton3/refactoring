@@ -19,6 +19,9 @@ class Movie(models.Model):
 
   def __str__(self):
     return self.title_kor
+
+  class Meta:
+    ordering = ['id']
   
 class Staff(models.Model):
   movie = models.ForeignKey(Movie, null=True, blank=True,  on_delete=models.CASCADE)

@@ -1,5 +1,6 @@
 import requests
 from django.shortcuts import redirect
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
@@ -61,8 +62,10 @@ def init_db(request):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 def get_all_movies(request):
   movies = Movie.objects.all()
-  serializer = MovieSerializer(movies, many = True)
-  return Response(serializer.data)
+  pagination = PageNumberPagination()
+  page = pagination.paginate_queryset(movies, request)
+  serializer = MovieSerializer(page, many = True)
+  return pagination.get_paginated_response(serializer.data)
 
 '''
 영화 아이디 값으로 디테일 페이지 조회 (영화 정보 & 스태프 목록 리스트로 묶어 리턴함.)
@@ -104,8 +107,10 @@ def search(request):
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 def view_all_comments(request):
   comments = Comment.objects.all()
-  serializer = CommentSerializer(comments, many = True)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+  pagination = PageNumberPagination()
+  page = pagination.paginate_queryset(comments, request)
+  serializer = CommentSerializer(page, many = True)
+  return pagination.get_paginated_response(serializer.data)
 
 '''
 디테일 페이지에 달린 댓글 목록 확인
@@ -115,8 +120,10 @@ def view_all_comments(request):
 def view_comments(request, id):
   movie = Movie.objects.get(id=id)
   comments = Comment.objects.filter(movie=movie.id)
-  serializer = CommentSerializer(comments, many = True)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+  pagination = PageNumberPagination()
+  page = pagination.paginate_queryset(comments, request)
+  serializer = CommentSerializer(page, many = True)
+  return pagination.get_paginated_response(serializer.data)
 
 '''
 디테일 페이지에서 댓글 달기 (로그인 사용자 한정)
@@ -171,6 +178,8 @@ def delete_comment(request, id):
 def view_my_comments(request):
   user = request.user
   comments = Comment.objects.filter(user=user.id)
-  serializer = CommentSerializer(comments, many = True)
-  return Response(serializer.data, status=status.HTTP_200_OK)
+  pagination = PageNumberPagination()
+  page = pagination.paginate_queryset(comments, request)
+  serializer = CommentSerializer(page, many = True)
+  return pagination.get_paginated_response(serializer.data)
 
